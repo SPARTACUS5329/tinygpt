@@ -1,6 +1,9 @@
-use std::env;
+use std::{collections::HashMap, env};
 
-use crate::utils::NiceError;
+use crate::{
+    tokenizer::Token,
+    utils::{NiceError, print_tokens},
+};
 
 mod tokenizer;
 mod utils;
@@ -10,23 +13,21 @@ fn main() -> Result<(), NiceError> {
     let dataset_location = format!("./assets/{}", &args[1]);
 
     let content = utils::read_file(&dataset_location.to_string())?;
-    let (tokens, dll_head) = tokenizer::tokenizer(content);
+    let (tokens, _dll_head) = tokenizer::tokenizer(content);
 
-    for token in tokens.iter() {
-        println!("{}", token.0.borrow().val);
-    }
+    // print_tokens(&tokens);
 
-    let mut dll_node = dll_head.clone();
-    while let Some(dll_token_rc) = dll_node {
-        let dll_token = dll_token_rc.borrow();
-        println!(
-            "{} -> {} {}",
-            dll_token.token.borrow().val,
-            dll_token.id,
-            dll_token.token.borrow().id
-        );
-        dll_node = dll_token.next.clone();
-    }
+    let dim = 8i32;
+    let embeddings = utils::random_embedding(tokens.len(), dim as usize);
+    let _token_to_vec: HashMap<Token, Vec<f32>> = tokens
+        .clone()
+        .into_iter()
+        .zip(embeddings.into_iter())
+        .map(|(token_ref, vec)| {
+            let token = token_ref.0.borrow();
+            (token.clone(), vec)
+        })
+        .collect();
 
     Ok(())
 }

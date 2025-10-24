@@ -288,7 +288,7 @@ pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLT
 
     let mut dll_head = head.unwrap();
 
-    let max_iters = 5;
+    let max_iters = 500;
     let mut iters = 0i32;
 
     while iters < max_iters {

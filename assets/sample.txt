@@ -1,1 +1,49 @@
-ababbcbccdbc
+MVP Build Process and Outcomes:
+Have a simple demo-able system to show what the pipeline looks like.
+Interface to display and interact with the model 
+Logging all data to some centralised location so that model B can read it efficiently (needs to be time synced).
+Model A to contextualize the whole codebase
+For the MVP maybe something as simple as reading the whole codebase and giving a text output that can in human language explain the different nodes topics and functionality involved.
+Model B to read logs and context from model A to perform realtime diagnosis.
+Codebase/CFG -> ModelA ⇒ Context
+Context + Logs -> ModelB ⇒ Diagnosis
+Revised version: User prompt —-> ModelB ==(global context + local context based logs) ⇒ Diagnosis
+Codebase -> CFG -> ModelA -> Context (5-10 page doc of NL)
+Prompt -> ModelA -> Filter
+Filter + Context (5-10 page doc of NL) -> ModelB (GPT2) -> Jadoo
+Research
+Aditya
+Context + Logs -> ModelB ⇒ Diagnosis
+Aayush
+Codebase/CFG (ROS) -> ModelA
+Mehul
+ModelA ⇒ Context
+
+For initial stages, the models can be simple pretrained LLM’s just taking custom inputs with small changes for data processing.
+
+
+
+Infer the intended output from the codebase
+Get a README
+Read the entire codebase??
+Read comments from the code and construct a CFG
+Probe the user for inputs based on model confidence
+Output-driven
+V0
+Process and store logs
+Read the logs
+Dump it into a model
+“ChatGPT fix it for me please”
+Real-time logs
+V1
+Input -> Codebase + logs
+Output -> Which node failed?
+Service/publisher specific
+
+
+
+
+
+
+
+
