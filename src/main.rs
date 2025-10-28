@@ -1,10 +1,8 @@
-use std::{collections::HashMap, env};
+use std::env;
 
-use crate::{
-    tokenizer::Token,
-    utils::{NiceError, print_tokens},
-};
+use crate::{embedder::embed, utils::NiceError};
 
+mod embedder;
 mod tokenizer;
 mod utils;
 
@@ -13,21 +11,17 @@ fn main() -> Result<(), NiceError> {
     let dataset_location = format!("./assets/{}", &args[1]);
 
     let content = utils::read_file(&dataset_location.to_string())?;
-    let (tokens, _dll_head) = tokenizer::tokenizer(content);
+    let (tokens, dll_head) = tokenizer::tokenizer(content);
+    let dll_head = dll_head.unwrap();
+
+    println!("Tokenized the data with {} tokens", tokens.len());
 
     // print_tokens(&tokens);
 
-    let dim = 8i32;
-    let embeddings = utils::random_embedding(tokens.len(), dim as usize);
-    let _token_to_vec: HashMap<Token, Vec<f32>> = tokens
-        .clone()
-        .into_iter()
-        .zip(embeddings.into_iter())
-        .map(|(token_ref, vec)| {
-            let token = token_ref.0.borrow();
-            (token.clone(), vec)
-        })
-        .collect();
+    let (_token_to_vec, _vec_to_token) = embed(tokens, &dll_head);
+
+    println!("Embedded the tokens into vectors of f32");
+    println!("{:?}", dll_head.borrow().embed);
 
     Ok(())
 }

@@ -58,6 +58,7 @@ impl Hash for TokenRef {
 pub struct DLLToken {
     pub id: i32,
     pub token: Rc<RefCell<Token>>,
+    pub embed: Vec<f32>,
     pub next: Option<Rc<RefCell<DLLToken>>>,
     pub prev: Option<Rc<RefCell<DLLToken>>>,
 }
@@ -98,6 +99,7 @@ impl DLLToken {
         DLLToken {
             id: id,
             token,
+            embed: Vec::new(),
             next: None,
             prev,
         }

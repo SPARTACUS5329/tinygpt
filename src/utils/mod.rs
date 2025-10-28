@@ -1,4 +1,3 @@
-use rand_distr::{Distribution, Uniform};
 use std::collections::HashSet;
 use std::fs::OpenOptions;
 use std::io::Read;
@@ -47,12 +46,4 @@ pub fn print_tokens(tokens: &HashSet<TokenRef>) {
     for token in tokens.iter() {
         println!("{}", token.0.borrow().val);
     }
-}
-
-pub fn random_embedding(vocab_size: usize, dim: usize) -> Vec<Vec<f32>> {
-    let range = Uniform::new(-0.1, 0.1);
-    let mut rng = rand::thread_rng();
-    (0..vocab_size)
-        .map(|_| (0..dim).map(|_| range.sample(&mut rng)).collect())
-        .collect()
 }
