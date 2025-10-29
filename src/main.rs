@@ -1,7 +1,8 @@
 use std::env;
 
-use crate::{embedder::embed, utils::NiceError};
+use crate::{attention::attention, embedder::embed, utils::NiceError};
 
+mod attention;
 mod embedder;
 mod tokenizer;
 mod utils;
@@ -16,12 +17,15 @@ fn main() -> Result<(), NiceError> {
 
     println!("Tokenized the data with {} tokens", tokens.len());
 
-    // print_tokens(&tokens);
-
     let (_token_to_vec, _vec_to_token) = embed(tokens, &dll_head);
 
     println!("Embedded the tokens into vectors of f32");
-    println!("{:?}", dll_head.borrow().embed);
+
+    let seq_len = 32;
+    let dim = 8;
+
+    let (_attention_params, output) = attention(seq_len, dim, &dll_head);
+    println!("{}", output);
 
     Ok(())
 }
