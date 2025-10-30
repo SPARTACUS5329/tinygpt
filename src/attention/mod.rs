@@ -10,7 +10,7 @@ pub struct AttentionParams {
 }
 
 impl AttentionParams {
-    fn new(dim: usize) -> Self {
+    pub fn new(dim: usize) -> Self {
         Self {
             dim: dim as i32,
             w_q: MatrixF32::new_rand_weight(dim, dim),
@@ -21,12 +21,11 @@ impl AttentionParams {
     }
 }
 
-pub fn attention(
+pub fn generate_seq_matrix(
     seq_len: i32,
     dim: i32,
     seq_dll_head: &Rc<RefCell<DLLToken>>,
-) -> (AttentionParams, MatrixF32) {
-    let attention_params = AttentionParams::new(dim as usize);
+) -> MatrixF32 {
     let mut seq = MatrixF32::new(seq_len, dim);
     let mut seq_vals: Vec<f32> = vec![];
 
@@ -42,10 +41,14 @@ pub fn attention(
     }
 
     seq.vals = seq_vals;
+    seq
+}
 
-    let q = &seq * &attention_params.w_q; // L * D
-    let mut k = &seq * &attention_params.w_k; // L * D
-    let v = &seq * &attention_params.w_v; // L * D
+pub fn attention(dim: i32, seq: &MatrixF32) -> (AttentionParams, MatrixF32) {
+    let attention_params = AttentionParams::new(dim as usize);
+    let q = seq * &attention_params.w_q; // L * D
+    let mut k = seq * &attention_params.w_k; // L * D
+    let v = seq * &attention_params.w_v; // L * D
 
     k.transpose(); // D * L
 
@@ -53,7 +56,9 @@ pub fn attention(
     scores = &scores / (dim as f32).sqrt();
     scores.casual_mask();
     scores.softmax_row();
-    let output = &(&scores * &v) * &attention_params.w_o;
+    let mut output = &scores * &v;
+    output = &output * &attention_params.w_o;
+    output = &output + seq;
 
     (attention_params, output)
 }
