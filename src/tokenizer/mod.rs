@@ -1,9 +1,9 @@
-use core::num;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
     hash::{Hash, Hasher},
     rc::Rc,
+    usize,
 };
 
 #[derive(Clone)]
@@ -274,7 +274,7 @@ fn init_tokens(
     return (num_dll_tokens, head);
 }
 
-pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLToken>>>) {
+pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLToken>>>, Vec<i32>) {
     let mut tokens: HashSet<TokenRef> = HashSet::new();
     let mut token_map: HashMap<String, Rc<RefCell<Token>>> = HashMap::new();
     let mut num_tokens = 0i32;
@@ -285,7 +285,7 @@ pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLT
 
     if head.is_none() {
         eprintln!("[tokenizer] No head found");
-        return (tokens, None);
+        return (tokens, None, vec![]);
     }
 
     let mut dll_head = head.unwrap();
@@ -316,6 +316,13 @@ pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLT
 
     let mut final_tokens: HashSet<TokenRef> = HashSet::new();
     let mut dll_node = Some(Rc::clone(&dll_head));
+    let mut token_id_map: Vec<i32> = vec![0; (num_tokens + 1) as usize];
+    let mut vocab_index = 0i32;
+
+    for token in tokens.iter() {
+        token_id_map[token.0.borrow().id as usize] = vocab_index;
+        vocab_index += 1;
+    }
 
     while let Some(node_rc) = dll_node {
         let node = node_rc.borrow();
@@ -323,5 +330,5 @@ pub fn tokenizer(sequence: String) -> (HashSet<TokenRef>, Option<Rc<RefCell<DLLT
         dll_node = node.next.clone();
     }
 
-    return (final_tokens, Some(dll_head));
+    return (final_tokens, Some(dll_head), token_id_map);
 }

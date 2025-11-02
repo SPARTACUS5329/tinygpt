@@ -25,23 +25,27 @@ pub fn generate_seq_matrix(
     seq_len: i32,
     dim: i32,
     seq_dll_head: &Rc<RefCell<DLLToken>>,
-) -> MatrixF32 {
+) -> (MatrixF32, Option<Rc<RefCell<DLLToken>>>, Vec<i32>) {
     let mut seq = MatrixF32::new(seq_len, dim);
     let mut seq_vals: Vec<f32> = vec![];
+    let mut target_token_ids: Vec<i32> = vec![];
 
     let mut seq_dll_node = Some(Rc::clone(seq_dll_head));
     let mut pos = 0i32;
 
-    while let Some(seq_dll_token) = seq_dll_node
+    while let Some(seq_dll_token) = seq_dll_node.clone()
         && pos < seq_len
     {
         seq_vals.extend(seq_dll_token.borrow().embed.clone());
         seq_dll_node = seq_dll_token.borrow().next.clone();
+        if let Some(dll_node) = seq_dll_node.clone() {
+            target_token_ids.push(dll_node.borrow().token.borrow().id);
+        }
         pos += 1;
     }
 
     seq.vals = seq_vals;
-    seq
+    (seq, seq_dll_node, target_token_ids)
 }
 
 pub fn attention(dim: i32, seq: &MatrixF32) -> (AttentionParams, MatrixF32) {
